@@ -64,7 +64,7 @@ class MagiskInit : public BaseInit {
 protected:
     mmap_data self;
     mmap_data magisk_config;
-    std::string custom_rules_dir;
+    std::vector<std::string> custom_rules_dirs;
 
     void mount_with_dt();
     bool patch_sepolicy(const char *file);

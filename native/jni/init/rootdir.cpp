@@ -108,13 +108,15 @@ bool MagiskInit::patch_sepolicy(const char *file) {
     sepol->magisk_rules();
 
     // Custom rules
-    if (!custom_rules_dir.empty()) {
-        if (auto dir = xopen_dir(custom_rules_dir.data())) {
-            for (dirent *entry; (entry = xreaddir(dir.get()));) {
-                auto rule = custom_rules_dir + "/" + entry->d_name + "/sepolicy.rule";
-                if (xaccess(rule.data(), R_OK) == 0) {
-                    LOGD("Loading custom sepolicy patch: [%s]\n", rule.data());
-                    sepol->load_rule_file(rule.data());
+    if (!custom_rules_dirs.empty()) {
+        for (auto &custom_rules_dir : custom_rules_dirs) {
+            if (auto dir = xopen_dir(custom_rules_dir.data())) {
+                for (dirent *entry; (entry = xreaddir(dir.get()));) {
+                    auto rule = custom_rules_dir + "/" + entry->d_name + "/sepolicy.rule";
+                    if (xaccess(rule.data(), R_OK) == 0) {
+                        LOGD("Loading custom sepolicy patch: [%s]\n", rule.data());
+                        sepol->load_rule_file(rule.data());
+                    }
                 }
             }
         }
@@ -342,8 +344,8 @@ void RootFSBase::patch_rootfs() {
     xmkdir("/dev/block", 0755);
     mount_rules_dir("/dev/block", TMP_MNTDIR);
     // Preserve custom rule path
-    if (!custom_rules_dir.empty()) {
-        string rules_dir = "./" + custom_rules_dir.substr(sizeof(TMP_MNTDIR));
+    if (!custom_rules_dirs.empty()) {
+        string rules_dir = "./" + custom_rules_dirs.front().substr(sizeof(TMP_MNTDIR));
         xsymlink(rules_dir.data(), TMP_RULESDIR);
     }
 

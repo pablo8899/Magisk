@@ -250,7 +250,7 @@ void MagiskInit::mount_rules_dir(const char *dev_base, const char *mnt_base) {
     strcpy(p, "/data/unencrypted");
     if (xaccess(path, F_OK) == 0) {
         // FBE, need to use an unencrypted path
-        custom_rules_dir = path + "/magisk"s;
+        custom_rules_dirs.emplace_back(path + "/magisk"s);
     } else {
         // Skip if /data/adb does not exist
         strcpy(p, SECURE_DIR);
@@ -261,7 +261,7 @@ void MagiskInit::mount_rules_dir(const char *dev_base, const char *mnt_base) {
             goto cache;
         }
         // Unencrypted, directly use module paths
-        custom_rules_dir = string(path);
+        custom_rules_dirs.emplace_back(path);
     }
     goto success;
 
@@ -278,8 +278,8 @@ cache:
     }
     if (!do_mount("ext4"))
         goto metadata;
-    custom_rules_dir = path + "/magisk"s;
-    goto success;
+    custom_rules_dirs.emplace_back(path + "/magisk"s);
+    // Fall-through because some devices has /cache in their fstab but doesn't actually mount it
 
 metadata:
     // Fallback to metadata
@@ -288,22 +288,23 @@ metadata:
     strcpy(p, "/metadata");
     if (setup_block(false) < 0 || !do_mount("ext4"))
         goto persist;
-    custom_rules_dir = path + "/magisk"s;
-    goto success;
+    custom_rules_dirs.emplace_back(path + "/magisk"s);
+    // Fall-through because some devices has /metadata in their fstab but doesn't actually mount it
 
 persist:
     // Fallback to persist
     strcpy(blk_info.partname, "persist");
     strcpy(b, "/persist");
     strcpy(p, "/persist");
-    if (setup_block(false) < 0 || !do_mount("ext4"))
-        return;
-    custom_rules_dir = path + "/magisk"s;
+    if (setup_block(false) >= 0 && do_mount("ext4"))
+        custom_rules_dirs.emplace_back(path + "/magisk"s);
 
+    if (custom_rules_dirs.empty()) return;
 success:
     // Create symlinks so we don't need to go through this logic again
     strcpy(p, "/sepolicy.rules");
-    xsymlink(custom_rules_dir.data(), path);
+    auto &best_rules_dir = custom_rules_dirs.front();
+    xsymlink(best_rules_dir.data(), path);
 }
 
 void RootFSInit::early_mount() {
