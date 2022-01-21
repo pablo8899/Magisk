@@ -11,7 +11,7 @@ import com.topjohnwu.magisk.core.utils.*
 import com.topjohnwu.magisk.di.ServiceLocator
 import com.topjohnwu.superuser.Shell
 import com.topjohnwu.superuser.internal.UiThreadHandler
-import com.topjohnwu.superuser.ipc.RootService
+//import com.topjohnwu.superuser.ipc.RootService
 import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import kotlin.system.exitProcess
@@ -37,11 +37,11 @@ open class App() : Application() {
     }
 
     override fun attachBaseContext(context: Context) {
-        Shell.setDefaultBuilder(Shell.Builder.create()
+        /*Shell.setDefaultBuilder(Shell.Builder.create()
             .setFlags(Shell.FLAG_MOUNT_MASTER)
             .setInitializers(ShellInit::class.java)
             .setTimeout(2))
-        Shell.EXECUTOR = DispatcherExecutor(Dispatchers.IO)
+        Shell.EXECUTOR = DispatcherExecutor(Dispatchers.IO)*/
 
         // Get the actual ContextImpl
         val app: Application
@@ -69,11 +69,11 @@ open class App() : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        RootRegistry.bindTask = RootService.createBindTask(
+        /*RootRegistry.bindTask = RootService.createBindTask(
             intent<RootRegistry>(),
             UiThreadHandler.executor,
             RootRegistry.Connection
-        )
+        )*/
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
