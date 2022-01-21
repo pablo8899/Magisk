@@ -5,12 +5,12 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Binder
 import android.os.IBinder
-//import com.topjohnwu.superuser.ipc.RootService
+import com.topjohnwu.superuser.ipc.RootService
 import timber.log.Timber
 import java.util.concurrent.CountDownLatch
 import kotlin.system.exitProcess
 
-class RootRegistry(stub: Any?) /*: RootService()*/ {
+class RootRegistry(stub: Any?) : RootService() {
 
     constructor() : this(null)
 
@@ -25,7 +25,7 @@ class RootRegistry(stub: Any?) /*: RootService()*/ {
         }
     }
 
-    /*override fun onBind(intent: Intent): IBinder {
+    override fun onBind(intent: Intent): IBinder {
         // TODO: PLACEHOLDER
         return Binder()
     }
@@ -47,7 +47,7 @@ class RootRegistry(stub: Any?) /*: RootService()*/ {
         override fun onServiceDisconnected(name: ComponentName) {
             bind(Intent().setComponent(name), this)
         }
-    }*/
+    }
 
     companion object {
         var bindTask: Runnable? = null

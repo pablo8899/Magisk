@@ -89,7 +89,7 @@ dependencies {
     val vLibsu = "3.2.1"
     implementation("com.github.topjohnwu.libsu:core:${vLibsu}")
     implementation("com.github.topjohnwu.libsu:io:${vLibsu}")
-    //implementation("com.github.topjohnwu.libsu:service:${vLibsu}")
+    implementation("com.github.topjohnwu.libsu:service:${vLibsu}")
 
     val vRetrofit = "2.9.0"
     implementation("com.squareup.retrofit2:retrofit:${vRetrofit}")
