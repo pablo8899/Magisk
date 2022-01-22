@@ -51,7 +51,7 @@ abstract class BaseMainActivity<Binding : ViewDataBinding> : NavigationActivity<
                 }
                 preLoad()
                 if (it.isRoot) {
-                    //RootRegistry.Connection.await(2, TimeUnit.SECONDS)
+                    RootRegistry.Connection.await(2, TimeUnit.SECONDS)
                 }
 
                 runOnUiThread {

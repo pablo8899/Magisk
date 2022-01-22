@@ -38,12 +38,10 @@ open class App() : Application() {
 
     override fun attachBaseContext(context: Context) {
         Shell.setDefaultBuilder(Shell.Builder.create()
-                .setInitializers(ShellInit::class.java))
-        /*Shell.setDefaultBuilder(Shell.Builder.create()
             .setFlags(Shell.FLAG_MOUNT_MASTER)
             .setInitializers(ShellInit::class.java)
             .setTimeout(2))
-        Shell.EXECUTOR = DispatcherExecutor(Dispatchers.IO)*/
+        Shell.EXECUTOR = DispatcherExecutor(Dispatchers.IO)
 
         // Get the actual ContextImpl
         val app: Application

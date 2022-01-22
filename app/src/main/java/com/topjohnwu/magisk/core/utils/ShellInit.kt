@@ -22,7 +22,7 @@ class ShellInit : Shell.Initializer() {
             RootRegistry.bindTask?.run()
             RootRegistry.bindTask = null
         }
-        /*shell.newJob().apply {
+        shell.newJob().apply {
             add("export ASH_STANDALONE=1")
 
             val localBB: File
@@ -61,14 +61,14 @@ class ShellInit : Shell.Initializer() {
                 add("exec $localBB sh")
             }
 
-            add(context.rawResource(R.raw.manager))
+            /*add(context.rawResource(R.raw.manager))
             if (shell.isRoot) {
                 add(context.assets.open("util_functions.sh"))
             }
-            add("app_init")
+            add("app_init")*/
         }.exec()
 
-        fun fastCmd(cmd: String) = ShellUtils.fastCmd(shell, cmd)
+        /*fun fastCmd(cmd: String) = ShellUtils.fastCmd(shell, cmd)
         fun getVar(name: String) = fastCmd("echo \$$name")
         fun getBool(name: String) = getVar(name).toBoolean()
 
