@@ -37,6 +37,7 @@ open class App() : Application() {
     }
 
     override fun attachBaseContext(context: Context) {
+        Shell.enableVerboseLogging = true;
         Shell.setDefaultBuilder(Shell.Builder.create()
             .setFlags(Shell.FLAG_MOUNT_MASTER)
             .setInitializers(ShellInit::class.java)
