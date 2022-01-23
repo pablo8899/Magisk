@@ -23,6 +23,9 @@ class ShellInit : Shell.Initializer() {
             RootRegistry.bindTask = null
         }
         shell.newJob().apply {
+            add("true")
+            add("echo hello")
+            /*
             add("export ASH_STANDALONE=1")
 
             val localBB: File
@@ -39,7 +42,6 @@ class ShellInit : Shell.Initializer() {
                 localBB = File(context.applicationInfo.nativeLibraryDir, "libbusybox.so")
             }
             add("exec $localBB sh")
-            /*
             if (shell.isRoot) {
                 add("export MAGISKTMP=\$(magisk --path)/.magisk")
                 // Test if we can properly execute stuff in /data
