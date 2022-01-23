@@ -23,7 +23,7 @@ class ShellInit : Shell.Initializer() {
             RootRegistry.bindTask = null
         }
         shell.newJob().apply {
-            /*add("export ASH_STANDALONE=1")
+            add("export ASH_STANDALONE=1")
 
             val localBB: File
             if (isRunningAsStub) {
@@ -38,7 +38,8 @@ class ShellInit : Shell.Initializer() {
             } else {
                 localBB = File(context.applicationInfo.nativeLibraryDir, "libbusybox.so")
             }
-
+            add("exec $localBB sh")
+            /*
             if (shell.isRoot) {
                 add("export MAGISKTMP=\$(magisk --path)/.magisk")
                 // Test if we can properly execute stuff in /data
