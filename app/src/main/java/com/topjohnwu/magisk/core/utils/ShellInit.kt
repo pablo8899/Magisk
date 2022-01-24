@@ -23,8 +23,6 @@ class ShellInit : Shell.Initializer() {
             RootRegistry.bindTask = null
         }
         shell.newJob().apply {
-            add("true")
-            add("echo hello")
             /*
             add("export ASH_STANDALONE=1")
 
@@ -41,7 +39,6 @@ class ShellInit : Shell.Initializer() {
             } else {
                 localBB = File(context.applicationInfo.nativeLibraryDir, "libbusybox.so")
             }
-            add("exec $localBB sh")
             if (shell.isRoot) {
                 add("export MAGISKTMP=\$(magisk --path)/.magisk")
                 // Test if we can properly execute stuff in /data
@@ -63,12 +60,12 @@ class ShellInit : Shell.Initializer() {
                 // Directly execute the file
                 add("exec $localBB sh")
             }
-
+*/
             add(context.rawResource(R.raw.manager))
             if (shell.isRoot) {
                 add(context.assets.open("util_functions.sh"))
             }
-            add("app_init")*/
+            add("app_init")
         }.exec()
 
         /*fun fastCmd(cmd: String) = ShellUtils.fastCmd(shell, cmd)
