@@ -50,10 +50,6 @@ abstract class BaseMainActivity<Binding : ViewDataBinding> : NavigationActivity<
                     return@getShell
                 }
                 preLoad()
-                if (it.isRoot) {
-                    RootRegistry.Connection.await(2, TimeUnit.SECONDS)
-                }
-
                 runOnUiThread {
                     doPreload = false
                     if (isRunningAsStub) {
