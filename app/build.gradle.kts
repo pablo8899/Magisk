@@ -124,5 +124,8 @@ dependencies {
     implementation("androidx.transition:transition:1.4.1")
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.core:core-splashscreen:1.0.0-beta01")
+
     implementation("com.google.android.material:material:1.5.0")
+
+    implementation(files("libs/pine-core.aar"))\
 }
