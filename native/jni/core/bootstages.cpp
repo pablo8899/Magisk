@@ -332,6 +332,13 @@ void late_start(int client) {
 
     if (DAEMON_STATE < STATE_POST_FS_DATA_DONE || safe_mode)
         return;
+    
+    // Samsung's persist.sys.zygote.early will start zygotes before /data is decrypted
+    // Resetting this prop to avoid this in later boot
+    if (getprop("persist.sys.zygote.early") == "true") {
+        LOGI("Force disabling persist.sys.zygote.early");
+        setprop("persist.sys.zygote.early", "false");
+    }
 
     exec_common_scripts("service");
     exec_module_scripts("service");
