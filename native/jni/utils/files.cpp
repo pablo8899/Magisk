@@ -49,6 +49,7 @@ template <typename Func>
 static void post_order_walk(int dirfd, const Func &fn) {
     auto dir = xopen_dir(dirfd);
     if (!dir) return;
+    dirfd = ::dirfd(dir.get());
 
     for (dirent *entry; (entry = xreaddir(dir.get()));) {
         if (entry->d_type == DT_DIR)
@@ -61,6 +62,7 @@ template <typename Func>
 static void pre_order_walk(int dirfd, const Func &fn) {
     auto dir = xopen_dir(dirfd);
     if (!dir) return;
+    dirfd = ::dirfd(dir.get());
 
     for (dirent *entry; (entry = xreaddir(dir.get()));) {
         if (!fn(dirfd, entry))
@@ -104,6 +106,7 @@ void mv_path(const char *src, const char *dest) {
 
 void mv_dir(int src, int dest) {
     auto dir = xopen_dir(src);
+    src = dirfd(dir.get());
     run_finally f([=]{ close(dest); });
     for (dirent *entry; (entry = xreaddir(dir.get()));) {
         switch (entry->d_type) {
@@ -151,6 +154,7 @@ void cp_afc(const char *src, const char *dest) {
 
 void clone_dir(int src, int dest) {
     auto dir = xopen_dir(src);
+    src = dirfd(dir.get());
     run_finally f([&]{ close(dest); });
     for (dirent *entry; (entry = xreaddir(dir.get()));) {
         file_attr a;
@@ -190,6 +194,7 @@ void link_path(const char *src, const char *dest) {
 
 void link_dir(int src, int dest) {
     auto dir = xopen_dir(src);
+    src = dirfd(dir.get());
     run_finally f([&]{ close(dest); });
     for (dirent *entry; (entry = xreaddir(dir.get()));) {
         if (entry->d_type == DT_DIR) {
