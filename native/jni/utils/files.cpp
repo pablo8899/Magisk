@@ -89,7 +89,7 @@ void frm_rf(int dirfd) {
 
 void mv_path(const char *src, const char *dest) {
     file_attr attr;
-    getattr(src, &attr);
+    if (!getattr(src, &attr)) return;
     if (S_ISDIR(attr.st.st_mode)) {
         if (access(dest, F_OK) != 0) {
             xmkdirs(dest, 0);
@@ -127,7 +127,7 @@ void mv_dir(int src, int dest) {
 
 void cp_afc(const char *src, const char *dest) {
     file_attr a;
-    getattr(src, &a);
+    if (!getattr(src, &a)) return;
 
     if (S_ISDIR(a.st.st_mode)) {
         xmkdirs(dest, 0);
@@ -154,11 +154,11 @@ void clone_dir(int src, int dest) {
     run_finally f([&]{ close(dest); });
     for (dirent *entry; (entry = xreaddir(dir.get()));) {
         file_attr a;
-        getattrat(src, entry->d_name, &a);
+        bool b = getattrat(src, entry->d_name, &a);
         switch (entry->d_type) {
             case DT_DIR: {
                 xmkdirat(dest, entry->d_name, 0);
-                setattrat(dest, entry->d_name, &a);
+                if (b) setattrat(dest, entry->d_name, &a);
                 int sfd = xopenat(src, entry->d_name, O_RDONLY | O_CLOEXEC);
                 int dst = xopenat(dest, entry->d_name, O_RDONLY | O_CLOEXEC);
                 clone_dir(sfd, dst);
@@ -168,7 +168,7 @@ void clone_dir(int src, int dest) {
                 int sfd = xopenat(src, entry->d_name, O_RDONLY | O_CLOEXEC);
                 int dfd = xopenat(dest, entry->d_name, O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0);
                 xsendfile(dfd, sfd, nullptr, a.st.st_size);
-                fsetattr(dfd, &a);
+                if (b) fsetattr(dfd, &a);
                 close(dfd);
                 close(sfd);
                 break;
@@ -177,7 +177,7 @@ void clone_dir(int src, int dest) {
                 char buf[4096];
                 xreadlinkat(src, entry->d_name, buf, sizeof(buf));
                 xsymlinkat(buf, dest, entry->d_name);
-                setattrat(dest, entry->d_name, &a);
+                if (b) setattrat(dest, entry->d_name, &a);
                 break;
             }
         }
@@ -193,10 +193,10 @@ void link_dir(int src, int dest) {
     run_finally f([&]{ close(dest); });
     for (dirent *entry; (entry = xreaddir(dir.get()));) {
         if (entry->d_type == DT_DIR) {
-            file_attr a;
-            getattrat(src, entry->d_name, &a);
             xmkdirat(dest, entry->d_name, 0);
-            setattrat(dest, entry->d_name, &a);
+            file_attr a;
+            if (getattrat(src, entry->d_name, &a))
+                setattrat(dest, entry->d_name, &a);
             int sfd = xopenat(src, entry->d_name, O_RDONLY | O_CLOEXEC);
             int dfd = xopenat(dest, entry->d_name, O_RDONLY | O_CLOEXEC);
             link_dir(sfd, dfd);
@@ -206,32 +206,32 @@ void link_dir(int src, int dest) {
     }
 }
 
-int getattr(const char *path, file_attr *a) {
+bool getattr(const char *path, file_attr *a) {
     if (xlstat(path, &a->st) == -1)
-        return -1;
+        return false;
     char *con;
     if (lgetfilecon(path, &con) == -1)
-        return -1;
+        return false;
     strcpy(a->con, con);
     freecon(con);
-    return 0;
+    return true;
 }
 
-int getattrat(int dirfd, const char *name, file_attr *a) {
+bool getattrat(int dirfd, const char *name, file_attr *a) {
     char path[4096];
     fd_pathat(dirfd, name, path, sizeof(path));
     return getattr(path, a);
 }
 
-int fgetattr(int fd, file_attr *a) {
+bool fgetattr(int fd, file_attr *a) {
     if (xfstat(fd, &a->st) < 0)
-        return -1;
+        return false;
     char *con;
     if (fgetfilecon(fd, &con) < 0)
-        return -1;
+        return false;
     strcpy(a->con, con);
     freecon(con);
-    return 0;
+    return true;
 }
 
 int setattr(const char *path, file_attr *a) {
@@ -262,14 +262,14 @@ int fsetattr(int fd, file_attr *a) {
 
 void clone_attr(const char *src, const char *dest) {
     file_attr a;
-    getattr(src, &a);
-    setattr(dest, &a);
+    if (getattr(src, &a))
+        setattr(dest, &a);
 }
 
 void fclone_attr(int src, int dest) {
     file_attr a;
-    fgetattr(src, &a);
-    fsetattr(dest, &a);
+    if (fgetattr(src, &a))
+        fsetattr(dest, &a);
 }
 
 void fd_full_read(int fd, void **buf, size_t *size) {
@@ -377,7 +377,7 @@ void backup_folder(const char *dir, vector<raw_file> &files) {
             return false;
         raw_file file;
         file.path = path + len + 1;
-        if (fgetattr(fd, &file.attr) < 0)
+        if (!fgetattr(fd, &file.attr))
             return false;
         if (entry->d_type == DT_REG) {
             fd_full_read(fd, file.buf, file.sz);

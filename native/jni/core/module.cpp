@@ -484,15 +484,15 @@ void tmpfs_node::mount() {
         return;
     string src = mirror_path();
     const string &dest = node_path();
-    file_attr a;
-    getattr(src.data(), &a);
     mkdir(dest.data(), 0);
     if (!isa<tmpfs_node>(parent())) {
         // We don't need another layer of tmpfs if parent is skel
         xmount("tmpfs", dest.data(), "tmpfs", 0, nullptr);
         VLOGD("mnt_tmp", "tmpfs", dest.data());
     }
-    setattr(dest.data(), &a);
+    file_attr a;
+    if (getattr(src.data(), &a))
+        setattr(dest.data(), &a);
     dir_node::mount();
 }
 
